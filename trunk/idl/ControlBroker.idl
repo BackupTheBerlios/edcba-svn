@@ -1,0 +1,24 @@
+module EDCBA{
+	/*
+	 * Control Broker interface represents the basic class from which 
+	 * all control brokers will flow
+	 */
+	interface ControlBroker{
+		/* saves configuration to "profile" in a unified way
+		 * "auth" is a simple authentication handle supplied to
+		 * those who are able to serialize me
+		 */
+		oneway void serialize(string auth, string profile);
+		
+		/* takes configuration from "profile" over-writting current config
+		 * "auth" is a simple authentication handle supplied to those
+		 * who can deserialize me
+		 */
+		oneway void deserialize(string auth, string profile);
+		
+		/*
+		 * Returns the name of the Control Broker
+		 */
+		string getName();
+	};
+};

@@ -1,0 +1,11 @@
+module EDCBA{
+	interface BrokerNameService{
+		typedef sequence<string> stringArray;
+		
+		boolean register( string controlBroker, string address );
+		
+		stringArray getRegistered();
+		
+		string getAddressOf( string controlBroker );
+	};
+};
