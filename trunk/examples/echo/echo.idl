@@ -1,0 +1,7 @@
+
+module Test {
+    interface Echo {
+        string do_echo(in string message);
+        void quit();
+    };
+};

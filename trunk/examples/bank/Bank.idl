@@ -1,0 +1,14 @@
+module Bank{
+	interface Account{
+		readonly attribute double balance;
+		
+		exception InsufficientFunds{
+			double overdraft;
+		};
+		
+		void deposit( in double x );
+		void withdraw(in double x) raises (InsufficientFunds);
+		double getBalance();
+		oneway void notice( in string text );
+	};
+};
