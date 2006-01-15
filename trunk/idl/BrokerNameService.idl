@@ -2,10 +2,32 @@ module EDCBA{
 	interface BrokerNameService{
 		typedef sequence<string> stringArray;
 		
-		boolean register( string controlBroker, string address );
+		/*
+		 * Registers a control broker with the system.
+		 * We expect the unique name of the control borker, as well
+		 * as the IOR address of the control broker as the registration
+		 * tokens.  We will return the auth string that is used to between 
+		 * the name service and the control broker.  If the auth string is 
+		 * empty or NULL then registration failed.
+		 */
+		string register( in string controlBroker, in string address );
 		
+		/*
+		 * Deregisters a control broker.  The auth string is required
+		 * to guarantee that only the proper control broker can deregister
+		 * itself.  If false is returned then deregistation failed.
+		 */
+		boolean deregister( in string auth, in string controlBroker );
+		
+		/*
+		 * List of all the registered control brokers
+		 */
 		stringArray getRegistered();
 		
-		string getAddressOf( string controlBroker );
+		/*
+		 * Returns the IOR address of the control broker.  If empty string
+		 * for NULL is returned then the control broker hasn't been returned.
+		 */
+		string getAddressOf( in string controlBroker );
 	};
 };

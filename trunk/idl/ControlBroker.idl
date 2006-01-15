@@ -8,13 +8,13 @@ module EDCBA{
 		 * "auth" is a simple authentication handle supplied to
 		 * those who are able to serialize me
 		 */
-		oneway void serialize(string auth, string profile);
+		oneway void serialize(in string auth, in string profile);
 		
 		/* takes configuration from "profile" over-writting current config
 		 * "auth" is a simple authentication handle supplied to those
 		 * who can deserialize me
 		 */
-		oneway void deserialize(string auth, string profile);
+		oneway void deserialize(in string auth, in string profile);
 		
 		/*
 		 * Returns the name of the Control Broker
