@@ -9,49 +9,26 @@
 
 import os, socket, sys
 
-SERVER = True
-
-
-file('echo.idl', 'w').write("""
-module Test {
-    interface Echo {
-        string do_echo(in string message);
-        void quit();
-    };
-};
-""")
-
-# For omniOrb
-from omniORB import CORBA
-
-# For ORBitPy
-#import CORBA
-
-# For pyORBit
-#from ORBit import CORBA
-
-
 try:
-    if CORBA.ORB_ID == "omniORB4":
-        import omniORB
-        omniORB.importIDL("./echo.idl")
-        print "using omniORB"
-    elif CORBA.ORB_ID == "orbit-local-orb":
-        print "using ORBitPy" # magically takes '*.idl' from cwd!
-    else:
-        print "using unknown ORB"
-except AttributeError: # pyORBit's CORBA has no ORB_ID
-    import ORBit
-    ORBit.load_file("./echo.idl")
-    print "using pyORBit"
+	from omniORB import CORBA
+	import omniORB
+	
+	# for now assume we are being run from edcba root
+	omniORB.importIDL("./idl/BrokerNameService.idl")
+	omniORB.importIDL("./examples/echo/echo.idl")
+	
+	import EDCBA__POA as EDCBA
+	
+	base = EDCBA.Echo
+except:
+	# if we can't be a CORBA object, then we can't be anything
+	base = object
+	
+from EDCBA import ControlBroker
 
-# Import the IDL Stuff
-try:
-		import Test__POA
-		base = Test__POA.Echo
-except: pass
-
-class EchoServant(base):
+# The echo servant class inherits from the ControlBroker class to get the 
+#  Name Server registration functions
+class EchoServant(ControlBroker,base):
 	def do_echo(self, message):
 		print "Got: '%s'" % message
 		return ""
@@ -64,13 +41,11 @@ if __name__ == '__main__':
 	#del sys.argv[1:3] # pyORBit doesn't like some arguments
 	orb = CORBA.ORB_init(sys.argv)
 	
-	servant = EchoServant()
-	objref = servant._this()
-	file('iorfile', 'w').write(orb.object_to_string(objref))
-	poa = orb.resolve_initial_references("RootPOA")
-	poaManager = poa._get_the_POAManager() 
-	poaManager.activate()
+	servant = EchoServant(orb, "Echo Server")
+
+	#poa = orb.resolve_initial_references("RootPOA")
+	#poaManager = poa._get_the_POAManager() 
+	#poaManager.activate()
+	servant.deregister()
 	orb.run()
-	os.unlink("iorfile")
-	os.unlink("echo.idl")
 
