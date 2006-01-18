@@ -1,5 +1,5 @@
 
-module Test {
+module EDCBA {
     interface Echo {
         string do_echo(in string message);
         void quit();
