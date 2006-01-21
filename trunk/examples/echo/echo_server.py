@@ -8,6 +8,7 @@
 # real-world applications!
 
 import os, socket, sys
+from EdcbaBroker.ControlBroker import ControlBroker
 
 try:
 	from omniORB import CORBA
@@ -23,12 +24,13 @@ try:
 except:
 	# if we can't be a CORBA object, then we can't be anything
 	base = object
-	
-from EDCBA import ControlBroker
 
 # The echo servant class inherits from the ControlBroker class to get the 
 #  Name Server registration functions
 class EchoServant(ControlBroker,base):
+	def __init__(self, orb):
+		ControlBroker.__init__(self, orb, "Echo Server")
+
 	def do_echo(self, message):
 		print "Got: '%s'" % message
 		return ""
@@ -41,7 +43,9 @@ if __name__ == '__main__':
 	#del sys.argv[1:3] # pyORBit doesn't like some arguments
 	orb = CORBA.ORB_init(sys.argv)
 	
-	servant = EchoServant(orb, "Echo Server")
+	servant = EchoServant(orb)
+	
+	#pprint(sys.modules['EDCBA'].__dict__)
 
 	#poa = orb.resolve_initial_references("RootPOA")
 	#poaManager = poa._get_the_POAManager() 
