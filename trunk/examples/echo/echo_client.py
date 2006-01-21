@@ -8,6 +8,7 @@
 # real-world applications!
 
 import os, socket, sys
+from EdcbaBroker.ControlBroker import ControlBroker
 
 # For Fnorb
 #from Fnorb.orb import CORBA
@@ -21,35 +22,30 @@ from omniORB import CORBA
 # For pyORBit
 #from ORBit import CORBA
 
-
 try:
-    if CORBA.ORB_ID == "The ORB called Fnorb v1.1.Return.of.Fnorb":
-        os.system("fnidl echo.idl")
-        print "using Fnorb"
-    elif CORBA.ORB_ID == "omniORB4":
-        import omniORB
-        omniORB.importIDL("./echo.idl")
-        print "using omniORB"
-    elif CORBA.ORB_ID == "orbit-local-orb":
-        print "using ORBitPy" # magically takes '*.idl' from cwd!
-    else:
-        print "using unknown ORB"
-except AttributeError: # pyORBit's CORBA has no ORB_ID
-    import ORBit
-    ORBit.load_file("./echo.idl")
-    print "using pyORBit"
+	from omniORB import CORBA
+	import omniORB
+	
+	# for now assume we are being run from edcba root
+	omniORB.importIDL("./idl/BrokerNameService.idl")
+	omniORB.importIDL("./examples/echo/echo.idl")
+except: pass
 
 #Import the IDL
-import Test
-class base: pass
+import EDCBA__POA
 
 if __name__ == '__main__':
 	#del sys.argv[1:3] # pyORBit doesn't like some arguments
 	orb = CORBA.ORB_init(sys.argv)
 	# client code
-	ior = file('iorfile').read()
-	obj = orb.string_to_object(ior)
-	echo = obj._narrow(Test.Echo)
+	ns_ior = file('/tmp/BrokerNameService.ior').read()
+	ns_obj = orb.string_to_object(ns_ior)
+	ns  = ns_obj._narrow(EDCBA__POA.BrokerNameService)
+	
+	echo_ior = ns.getAddressOf("Echo Server")
+	echo_obj = orb.string_to_object(echo_ior)
+	echo  = ns_obj._narrow(EDCBA__POA.Echo)
+
 	#print echo.do_echo("Hello!")
 	while True:
 		try: s = raw_input("> ")
