@@ -1,1 +1,1 @@
-__all__ = ['BrokerNameService']
+__all__ = ['BrokerNameService','ControlBroker']
