@@ -1,0 +1,33 @@
+#include <ControlBroker.idl>
+module EDCBA{
+	struct IPInterface{
+		string name;
+		string ip;
+		string mask;
+		string broadcast;
+		string bound_to;
+	};
+	
+	struct SystemStatus{
+		string name;
+		sequence<IPInterface> bound;
+	};
+	
+	interface IPControlBroker : ControlBroker{
+		/*
+		 * Adds a named IP interface to the system.  Initially this interface
+		 * will be blank.  Returns true if the interface was added.
+		 */
+		boolean addInterface( in string name );
+		
+		boolean editInterface( in string name, in string ip, 
+		                       in string mask, in string broadcast );
+							   
+		boolean bindInterface( in string name, in string l2 );
+		boolean unbindInterface( in string name );
+		
+		IPInterface getInterfaces();
+		
+		SystemStatus getStatus();
+	};
+};

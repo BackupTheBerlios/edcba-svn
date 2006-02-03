@@ -40,7 +40,7 @@ class ControlBroker(base):
 	def register(self):
 		'''Registers with the BrokerNameService'''
 		ior = file('/tmp/BrokerNameService.ior').read()
-		obj = orb.string_to_object(ior)
+		obj = self.orb.string_to_object(ior)
 		ns  = obj._narrow(EDCBA.BrokerNameService)
 		auth = ns.register(self.name,self.orb.object_to_string(self._this()))
 		if auth:
