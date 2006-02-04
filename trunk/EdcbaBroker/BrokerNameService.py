@@ -4,40 +4,40 @@
 # brokers.
 # Copyright 2006 John T. Kamenik, GLPL, All rights reserved.
 
-import os, sys
+import os, sys, signal
 
 try:
 	from omniORB import CORBA
 	import omniORB
-	
+
 	# for now assume we are being run from edcba root
 	omniORB.importIDL("./idl/BrokerNameService.idl")
-	
+
 	import EDCBA__POA as EDCBA
-	
+
 	base = EDCBA.BrokerNameService
 except:
 	# if we can't be a CORBA object, then we can't be anything
 	base = object
-	
-	
+
+
 class Registration:
-	'''Registration object used as a holding place for 
+	'''Registration object used as a holding place for
 	registration information'''
-	
+
 	def __init__(self, controlBroker, address):
 		self.brokername = controlBroker
 		self.ior        = address
 		self.auth       = None
-		
+
 	def getBrokerName(self):
 		'''Returns the Broker's Name'''
 		return self.brokername
-		
+
 	def getAddress(self):
 		'''Returns the Broker's Address'''
 		return self.ior
-		
+
 	def getAuth(self):
 		'''Returns a generated authtication string'''
 		if not self.auth:
@@ -53,7 +53,7 @@ class NameService( base ):
 		print "Starting Broker Name Service"
 		print "Waiting for registrations..."
 		self.registered = {}
-		
+
 	def register(self, controlBroker, address):
 		print "Registering %s (%s)" % (controlBroker,address)
 		if controlBroker in self.registered:
@@ -62,7 +62,7 @@ class NameService( base ):
 			return None
 		self.registered[controlBroker ] = Registration(controlBroker,address)
 		return self.registered[controlBroker].getAuth()
-		
+
 	def deregister(self, auth, controlBroker):
 		print "Deregistering %s" % (controlBroker)
 		try:
@@ -76,27 +76,38 @@ class NameService( base ):
 		except:
 			print "ERROR: Failed to deregister %s" % (controlBroker)
 			return False
-			
+
 	def getRegistered(self):
 		return self.registered.getKeys()
-		
+
 	def getAddressOf(self, controlBroker):
 		try:
 			found = self.registered[controlBroker]
 			return found.getAddress()
 		except:
 			return None
-			
-			
+
+
+def quitHandler(signum, frame):
+	raise KeyboardInterrupt
+
+
 # if we are run as a program then act like a server
 if __name__ == '__main__':
 	orb = CORBA.ORB_init(sys.argv)
-	
+
 	server = NameService()
 	objref = server._this()
 	file('/tmp/BrokerNameService.ior', 'w').write(orb.object_to_string(objref))
 	poa = orb.resolve_initial_references("RootPOA")
-	poaManager = poa._get_the_POAManager() 
+	poaManager = poa._get_the_POAManager()
 	poaManager.activate()
-	orb.run()
+
+	signal.signal(signal.SIGQUIT, quitHandler)
+	signal.signal(signal.SIGTSTP, quitHandler)
+
+	try:
+		orb.run()
+	except KeyboardInterrupt:
+		pass
 	os.unlink("/tmp/BrokerNameService.ior")

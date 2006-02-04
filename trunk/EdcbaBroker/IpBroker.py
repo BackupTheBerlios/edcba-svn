@@ -3,40 +3,40 @@
 # This is a IP (L3) Broker
 # Copyright 2006 John T. Kamenik, GLPL, All rights reserved.
 
-import sys
+import sys, signal
 from ControlBroker import ControlBroker
 from pprint import pprint
 
 try:
 	from omniORB import CORBA
 	import omniORB
-	
+
 	omniORB.omniidlArguments(["-I./idl"])
 	omniORB.importIDL("./idl/BrokerNameService.idl")
 	omniORB.importIDL("./idl/IPControlBroker.idl")
-	
+
 	import EDCBA__POA as EDCBA
-	
+
 	base  = EDCBA.IPControlBroker
 except:
 	print "loading exception"
 	base  = object
 	ibase = object
-	
-#pprint( sys.modules["EDCBA"].__dict__ )
-	
 
-class IPBroker(base,ControlBroker):
+#pprint( sys.modules["EDCBA"].__dict__ )
+
+
+class IPBroker(ControlBroker,base):
 	def __init__(self,orb):
-		super(IPBroker, self).__init__(self,orb,"IP Broker")
+		ControlBroker.__init__(self,orb,"IP Broker")
 		self.ips = {}
-		
+
 	def addInterface(self,name):
 		if name in self.ips:
 			return False
 		self.ips[name] = EDCBA.IPInterface(name)
 		return True
-		
+
 	def editInterface(self,name,ip,mask,broadcast):
 		if not name or name not in self.ips:
 			return False
@@ -46,24 +46,35 @@ class IPBroker(base,ControlBroker):
 			self.ips[name].mask = mask
 		if broadcast:
 			self.ips[name].broadcast = broadcast
-			
+
 	def bindInterface(self,name,l2):
 		pass
-		
+
 	def unbindInterface(self,name):
 		pass
-		
+
 	def getInterfaces(self):
 		pass
-		
+
 	def getStatus(self):
 		pass
-		
+
+
+def quitHandler(signum, frame):
+	raise KeyboardInterrupt
+
+
 if __name__ == "__main__":
 	orb = CORBA.ORB_init(sys.argv)
-	
+
 	obj = IPBroker(orb)
-	
-	print obj.__dict__
-	
+
+	signal.signal(signal.SIGQUIT, quitHandler)
+	signal.signal(signal.SIGTSTP, quitHandler)
+
+	try:
+		signal.pause()
+	except KeyboardInterrupt:
+		pass
+
 	obj.deregister()
