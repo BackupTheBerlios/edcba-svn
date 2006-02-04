@@ -78,7 +78,7 @@ class NameService( base ):
 			return False
 
 	def getRegistered(self):
-		return self.registered.getKeys()
+		return self.registered.keys()
 
 	def getAddressOf(self, controlBroker):
 		try:
