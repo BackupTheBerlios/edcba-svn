@@ -15,6 +15,7 @@ try:
 	import omniORB
 
 	# for now assume we are being run from edcba root
+	omniORB.omniidlArguments(["-I./idl"])
 	omniORB.importIDL("./idl/BrokerNameService.idl")
 	omniORB.importIDL("./examples/echo/echo.idl")
 

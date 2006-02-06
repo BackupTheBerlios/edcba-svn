@@ -1,6 +1,6 @@
-
+#include <ControlBroker.idl>
 module EDCBA {
-    interface Echo {
+    interface Echo : ControlBroker{
         string do_echo(in string message);
         //void quit();
     };
