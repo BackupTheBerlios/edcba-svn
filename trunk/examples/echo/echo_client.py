@@ -25,7 +25,7 @@ from omniORB import CORBA
 try:
 	from omniORB import CORBA
 	import omniORB
-	
+
 	# for now assume we are being run from edcba root
 	omniORB.importIDL("./idl/BrokerNameService.idl")
 	omniORB.importIDL("./examples/echo/echo.idl")
@@ -41,10 +41,13 @@ if __name__ == '__main__':
 	ns_ior = file('/tmp/BrokerNameService.ior').read()
 	ns_obj = orb.string_to_object(ns_ior)
 	ns  = ns_obj._narrow(EDCBA__POA.BrokerNameService)
-	
+
 	echo_ior = ns.getAddressOf("Echo Server")
+	print "IOR: %s" % (echo_ior)
 	echo_obj = orb.string_to_object(echo_ior)
+	print "OBJ: %s" % (echo_obj)
 	echo  = ns_obj._narrow(EDCBA__POA.Echo)
+	print "REL: %s" % (echo)
 
 	#print echo.do_echo("Hello!")
 	while True:
@@ -52,7 +55,7 @@ if __name__ == '__main__':
 		except EOFError: s = 'EOF'
 		echo.do_echo(s)
 		if s == 'EOF': break
-	
+
 	try: # as we kill the server, an exception may occur
 		echo.quit()
 	except CORBA.COMM_FAILURE:
