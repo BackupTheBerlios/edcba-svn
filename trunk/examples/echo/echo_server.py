@@ -31,6 +31,7 @@ except:
 class EchoServant(base,ControlBroker):
 	def __init__(self, orb):
 		ControlBroker.__init__(self, orb, "Echo Server")
+		print "Starting Echo Sterver"
 
 	def do_echo(self, message):
 		print "Got: '%s'" % message
@@ -42,13 +43,10 @@ def quitHandler(signum, frame):
 	raise KeyboardInterrupt
 
 if __name__ == '__main__':
-	print "Starting Echo Sterver"
 	orb = CORBA.ORB_init(sys.argv)
 
 	servant = EchoServant(orb)
 	
-	#objref = syslog._this()
-	#file('iorfile', 'w').write(orb.object_to_string(objref))
 	poa = orb.resolve_initial_references("RootPOA")
 	poaManager = poa._get_the_POAManager() 
 	poaManager.activate()
