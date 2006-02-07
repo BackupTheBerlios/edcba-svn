@@ -7,7 +7,7 @@
 # which doesn't even support the POA.  Never ever do such thing in
 # real-world applications!
 
-import os, socket, sys
+import os, socket, sys, signal
 from EdcbaBroker.ControlBroker import ControlBroker
 
 # For Fnorb
@@ -27,6 +27,7 @@ try:
 	import omniORB
 
 	# for now assume we are being run from edcba root
+	omniORB.omniidlArguments(["-I./idl"])
 	omniORB.importIDL("./idl/BrokerNameService.idl")
 	omniORB.importIDL("./examples/echo/echo.idl")
 except: pass
@@ -34,8 +35,12 @@ except: pass
 #Import the IDL
 import EDCBA__POA
 
+def quitHandler(signum, frame):
+	print "\nStopping Echo Client"
+	raise KeyboardInterrupt
+
 if __name__ == '__main__':
-	#del sys.argv[1:3] # pyORBit doesn't like some arguments
+	print "Starting Echo Client"
 	orb = CORBA.ORB_init(sys.argv)
 	# client code
 	ns_ior = file('/tmp/BrokerNameService.ior').read()
@@ -46,23 +51,20 @@ if __name__ == '__main__':
 	print "IOR: %s" % (echo_ior)
 	echo_obj = orb.string_to_object(echo_ior)
 	print "OBJ: %s" % (echo_obj)
-	echo  = ns_obj._narrow(EDCBA__POA.Echo)
+	echo  = echo_obj._narrow(EDCBA__POA.Echo)
 	print "REL: %s" % (echo)
+	
+	signal.signal(signal.SIGQUIT, quitHandler)
+	signal.signal(signal.SIGTSTP, quitHandler)
+	signal.signal(signal.SIGINT,  quitHandler)
 
 	#print echo.do_echo("Hello!")
-	while True:
-		try: s = raw_input("> ")
-		except EOFError: s = 'EOF'
-		echo.do_echo(s)
-		if s == 'EOF': break
-
-	try: # as we kill the server, an exception may occur
-		echo.quit()
-	except CORBA.COMM_FAILURE:
-		print "pyORBit -o )- pyORBit or Fnorb -o )- any ORB?"
-	except CORBA.TRANSIENT:
-		print "pyORBit -o )- omniORB?"
-	except socket.error:
-		print "pyORBit -o )- Fnorb?"
+	try:
+		while True:
+			try: s = raw_input("> ")
+			except EOFError: s = 'EOF'
+			echo.do_echo(s)
+			if s == 'EOF': break
+	except KeyboardInterrupt: pass
 
 

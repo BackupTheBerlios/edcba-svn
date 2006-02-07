@@ -28,7 +28,7 @@ except:
 
 # The echo servant class inherits from the ControlBroker class to get the
 #  Name Server registration functions
-class EchoServant(ControlBroker,base):
+class EchoServant(base,ControlBroker):
 	def __init__(self, orb):
 		ControlBroker.__init__(self, orb, "Echo Server")
 
@@ -36,27 +36,30 @@ class EchoServant(ControlBroker,base):
 		print "Got: '%s'" % message
 		return message
 
-	#def quit(self):
-	#	print "Good-bye!"
-	#	global orb
-	#	orb.shutdown(0)
-
 
 def quitHandler(signum, frame):
+	print "Stopping Echo Server"
 	raise KeyboardInterrupt
 
 if __name__ == '__main__':
-	#del sys.argv[1:3] # pyORBit doesn't like some arguments
+	print "Starting Echo Sterver"
 	orb = CORBA.ORB_init(sys.argv)
 
 	servant = EchoServant(orb)
+	
+	#objref = syslog._this()
+	#file('iorfile', 'w').write(orb.object_to_string(objref))
+	poa = orb.resolve_initial_references("RootPOA")
+	poaManager = poa._get_the_POAManager() 
+	poaManager.activate()
 
 	signal.signal(signal.SIGQUIT, quitHandler)
 	signal.signal(signal.SIGTSTP, quitHandler)
+	signal.signal(signal.SIGINT,  quitHandler)
 
 	try:
+		#orb.run()
 		signal.pause()
-	except KeyboardInterrupt:
-		pass
+	except KeyboardInterrupt: pass
 
 	servant.deregister()
