@@ -1,0 +1,24 @@
+#include <ControlBroker.idl>
+module EDCBA {
+	interface Stepper : ControlBroker {
+		/*
+		 * Sets the base
+		 */
+		void setBase(in float base);
+
+		/*
+		 * Sets the step amount
+		 */
+		void setStep(in float step);
+
+		/*
+		 * Resets the number of steps taken from base
+		 */
+		void reset();
+
+		/*
+		 * Returns the next value after a step
+		 */
+		float next();
+	};
+};
