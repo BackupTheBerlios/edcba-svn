@@ -17,7 +17,7 @@ try:
 	# for now assume we are being run from edcba root
 	omniORB.omniidlArguments(["-I./idl"])
 	omniORB.importIDL("./idl/BrokerNameService.idl")
-	omniORB.importIDL("./examples/echo/echo.idl")
+	omniORB.importIDL("./idl/echo.idl")
 
 	import EDCBA__POA as EDCBA
 
@@ -25,6 +25,7 @@ try:
 except:
 	# if we can't be a CORBA object, then we can't be anything
 	base = object
+	print "Failed to Initialize CORBA"
 
 # The echo servant class inherits from the ControlBroker class to get the
 #  Name Server registration functions
