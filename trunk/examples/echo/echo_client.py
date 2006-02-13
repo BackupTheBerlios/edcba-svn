@@ -17,10 +17,12 @@ try:
 	# for now assume we are being run from edcba root
 	omniORB.omniidlArguments(["-I./idl"])
 	omniORB.importIDL("./idl/BrokerNameService.idl")
-	omniORB.importIDL("./examples/echo/echo.idl")
+	omniORB.importIDL("./idl/echo.idl")
 	
 	import EDCBA__POA as EDCBA
-except: pass
+except:
+	print "Failed to initialise CORBA"
+	
 
 def quitHandler(signum, frame):
 	print "\nStopping Echo Client"
