@@ -54,7 +54,7 @@ class NameService( base ):
 		print "Waiting for registrations..."
 		self.registered = {}
 
-	def register(self, controlBroker, address):
+	def nsregister(self, controlBroker, address):
 		print "Registering %s (%s)" % (controlBroker,address)
 		if controlBroker in self.registered:
 			print "ERROR: %s attempted to re-register without deregistering" %\

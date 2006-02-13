@@ -10,7 +10,7 @@ module EDCBA{
 		 * the name service and the control broker.  If the auth string is 
 		 * empty or NULL then registration failed.
 		 */
-		string register( in string controlBroker, in string address );
+		string nsregister( in string controlBroker, in string address );
 		
 		/*
 		 * Deregisters a control broker.  The auth string is required

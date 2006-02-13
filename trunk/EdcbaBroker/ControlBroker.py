@@ -42,7 +42,7 @@ class ControlBroker(base):
 		ior = file('/tmp/BrokerNameService.ior').read()
 		obj = self.orb.string_to_object(ior)
 		ns  = obj._narrow(EDCBA.BrokerNameService)
-		auth = ns.register(self.name,self.orb.object_to_string(self._this()))
+		auth = ns.nsregister(self.name,self.orb.object_to_string(self._this()))
 		if auth:
 			self.auth = auth
 			self.ns   = ns
