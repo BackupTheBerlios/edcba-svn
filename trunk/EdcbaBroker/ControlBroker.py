@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 
 # The basic ControlBroker from which all others flow.
-# Copyright 2006 John T. Kamenik, GLPL, All rights reserved.
+# Copyright 2006 John T. Kamenik, LGPL, All rights reserved.
 
 import os, sys
 
 try:
 	from omniORB import CORBA
 	import omniORB
-	
+
 	# for now assume we are being run from edcba root
 	omniORB.importIDL("./idl/ControlBroker.idl")
 	omniORB.importIDL("./idl/BrokerNameService.idl")
-	
+
 	import EDCBA__POA as EDCBA
-	
+
 	base = EDCBA.ControlBroker
 except:
 	# if we can't be a CORBA object, then we can't be anything
 	base = object
-	
+
 
 class ControlBroker(base):
 	def __init__(self, orb, name="Control Broker"):
@@ -28,7 +28,7 @@ class ControlBroker(base):
 		self.orb  = orb
 		self.auth = None
 		self.register()
-		
+
 	def __del__(self):
 		'''Called when this class is cleaned up'''
 		print "Deleting %s" % (self.name)
@@ -36,7 +36,7 @@ class ControlBroker(base):
 			if self.auth:
 				ns.deregister(self.auth,self.name)
 		except: pass
-		
+
 	def register(self):
 		'''Registers with the BrokerNameService'''
 		ior = file('/tmp/BrokerNameService.ior').read()
@@ -49,7 +49,7 @@ class ControlBroker(base):
 			return True
 		else:
 			return False
-			
+
 	def deregister(self):
 		if self.auth is not None:
 			if self.ns.deregister(self.auth,self.name):
@@ -61,22 +61,22 @@ class ControlBroker(base):
 				return False
 		else:
 			return False
-			
+
 	def isRegistered(self):
 		return self.auth is not None
-		
+
 	def getName(self):
 		return self.name
-		
+
 	def serialize(self, auth, profile):
 		pass
-	
+
 	def deserialize(self, auth, profile):
 		pass
-		
-		
+
+
 if __name__ == "__main__":
 	orb = CORBA.ORB_init(sys.argv)
-	
+
 	obj = ControlBroker(orb)
 	obj.deregister()

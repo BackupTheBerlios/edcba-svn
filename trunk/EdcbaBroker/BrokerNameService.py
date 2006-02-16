@@ -2,7 +2,7 @@
 
 # The Broker Name service.  A simple registration location for all control
 # brokers.
-# Copyright 2006 John T. Kamenik, GLPL, All rights reserved.
+# Copyright 2006 John T. Kamenik, LGPL, All rights reserved.
 
 import os, sys, signal
 

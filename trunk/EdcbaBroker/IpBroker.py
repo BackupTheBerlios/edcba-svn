@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# This is a IP (L3) Broker
+# This is a IP (L3) Broker for the Linux "ip addr" command
 # Copyright 2006 John T. Kamenik, GLPL, All rights reserved.
 
 import sys, signal
@@ -15,26 +15,35 @@ try:
 	omniORB.importIDL("./idl/BrokerNameService.idl")
 	omniORB.importIDL("./idl/IPControlBroker.idl")
 
-	import EDCBA__POA as EDCBA
+	import EDCBA__POA
+	import EDCBA
 
-	base  = EDCBA.IPControlBroker
-except:
-	print "loading exception"
+	pprint( EDCBA__POA.__dict__ )
+	pprint( EDCBA.__dict__ )
+
+	base  = EDCBA__POA.IPControlBroker
+except object,reason:
+	print "Exception",reason
 	base  = object
-	ibase = object
-
-#pprint( sys.modules["EDCBA"].__dict__ )
 
 
-class IPBroker(ControlBroker,base):
+class MyInterface(EDCBA.IPInterface):
+	def __init__(self):
+		EDCBA.IPInterface.__init__(self,None,None,None,None,None)
+
+
+class IPBroker(base,ControlBroker):
 	def __init__(self,orb):
 		ControlBroker.__init__(self,orb,"IP Broker")
 		self.ips = {}
 
 	def addInterface(self,name):
+		print "Adding: %s" % name
 		if name in self.ips:
+			print "%s already exists" % name
 			return False
-		self.ips[name] = EDCBA.IPInterface(name)
+		self.ips[name] = MyInterface()
+		self.ips[name].name = name
 		return True
 
 	def editInterface(self,name,ip,mask,broadcast):
@@ -53,11 +62,21 @@ class IPBroker(ControlBroker,base):
 	def unbindInterface(self,name):
 		pass
 
+	def getInterface(self,name):
+		try:
+			print self.ips[name]
+			return self.ips[name]._narrow(EDCBA.IPInterface)
+		except KeyError:
+			None
+
 	def getInterfaces(self):
-		pass
+		return self.ips.values()
 
 	def getStatus(self):
 		pass
+
+	def test(self,test):
+		print test
 
 
 def quitHandler(signum, frame):
@@ -69,8 +88,13 @@ if __name__ == "__main__":
 
 	obj = IPBroker(orb)
 
+	poa = orb.resolve_initial_references("RootPOA")
+	poaManager = poa._get_the_POAManager()
+	poaManager.activate()
+
 	signal.signal(signal.SIGQUIT, quitHandler)
 	signal.signal(signal.SIGTSTP, quitHandler)
+	signal.signal(signal.SIGINT,  quitHandler)
 
 	try:
 		signal.pause()
